@@ -13,7 +13,7 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www/html
 
 # Copy default php.ini
-COPY php.ini /usr/local/etc/php/php.ini
+# COPY php.ini /usr/local/etc/php/php.ini
 
 # Set user and permissions
 RUN useradd -G www-data,root -u 1000 -m developer
