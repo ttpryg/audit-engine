@@ -10,6 +10,7 @@ use Ttpryg\AuditEngine\Entities\AuditLog;
 class PdoAuditStorage implements AuditRepositoryInterface
 {
     private PDO $pdo;
+
     private string $table;
 
     public function __construct(PDO $pdo, string $table = 'audit_logs')
@@ -50,6 +51,7 @@ class PdoAuditStorage implements AuditRepositoryInterface
         $stmt->execute(['id' => $id]);
 
         $data = $stmt->fetch(PDO::FETCH_ASSOC);
+
         return $data ? $this->mapToEntity($data) : null;
     }
 
@@ -120,21 +122,21 @@ class PdoAuditStorage implements AuditRepositoryInterface
         $params = [];
 
         if (isset($criteria['entity_type'])) {
-            $where[] = "entity_type = :entity_type";
+            $where[] = 'entity_type = :entity_type';
             $params['entity_type'] = strtolower($criteria['entity_type']);
         }
 
         if (isset($criteria['event_name'])) {
-            $where[] = "event_name = :event_name";
+            $where[] = 'event_name = :event_name';
             $params['event_name'] = $criteria['event_name'];
         }
 
         if (isset($criteria['actor_id'])) {
-            $where[] = "actor_id = :actor_id";
+            $where[] = 'actor_id = :actor_id';
             $params['actor_id'] = $criteria['actor_id'];
         }
 
-        $whereSql = !empty($where) ? 'WHERE ' . implode(' AND ', $where) : '';
+        $whereSql = ! empty($where) ? 'WHERE '.implode(' AND ', $where) : '';
         $sql = "SELECT * FROM {$this->table} {$whereSql} ORDER BY id DESC LIMIT :limit OFFSET :offset";
 
         $stmt = $this->pdo->prepare($sql);
@@ -155,8 +157,8 @@ class PdoAuditStorage implements AuditRepositoryInterface
 
     private function mapToEntity(array $data): AuditLog
     {
-        $oldValues = !empty($data['old_values']) ? json_decode($data['old_values'], true) : null;
-        $newValues = !empty($data['new_values']) ? json_decode($data['new_values'], true) : null;
+        $oldValues = ! empty($data['old_values']) ? json_decode($data['old_values'], true) : null;
+        $newValues = ! empty($data['new_values']) ? json_decode($data['new_values'], true) : null;
 
         return new AuditLog(
             eventName: $data['event_name'],
@@ -168,7 +170,7 @@ class PdoAuditStorage implements AuditRepositoryInterface
             ipAddress: $data['ip_address'] ?? null,
             userAgent: $data['user_agent'] ?? null,
             id: $data['id'],
-            createdAt: !empty($data['created_at']) ? new DateTimeImmutable($data['created_at']) : null
+            createdAt: ! empty($data['created_at']) ? new DateTimeImmutable($data['created_at']) : null
         );
     }
 }

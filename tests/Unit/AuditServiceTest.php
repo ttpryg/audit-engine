@@ -27,16 +27,17 @@ class DummyProductPriceChangedEvent
 class AuditServiceTest extends TestCase
 {
     private MemoryAuditStorage $storage;
+
     private AuditService $service;
 
     protected function setUp(): void
     {
-        $this->storage = new MemoryAuditStorage();
+        $this->storage = new MemoryAuditStorage;
         $this->service = new AuditService($this->storage);
     }
 
     // POSITIVE CASE: Manual Audit Logging and Dispatching Event
-    public function testManualAuditLogging(): void
+    public function test_manual_audit_logging(): void
     {
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
         $dispatcher->expects($this->once())
@@ -60,14 +61,22 @@ class AuditServiceTest extends TestCase
     }
 
     // POSITIVE CASE: Domain Event Subscriber Mapping
-    public function testDomainEventSubscriberMapsEvents(): void
+    public function test_domain_event_subscriber_maps_events(): void
     {
         $subscriber = new DomainEventSubscriber($this->service);
 
         // Dummy User Object
-        $dummyUser = new class {
-            public function getId() { return 100; }
-            public function toArray() { return ['email' => 'test@example.com']; }
+        $dummyUser = new class
+        {
+            public function getId()
+            {
+                return 100;
+            }
+
+            public function toArray()
+            {
+                return ['email' => 'test@example.com'];
+            }
         };
 
         $event1 = new DummyUserRegisteredEvent($dummyUser);
@@ -79,9 +88,17 @@ class AuditServiceTest extends TestCase
         $this->assertEquals(100, $log1->getEntityId());
 
         // Dummy Product Object
-        $dummyProduct = new class {
-            public function getId() { return 500; }
-            public function toArray() { return ['title' => 'Shoes', 'price' => 150000]; }
+        $dummyProduct = new class
+        {
+            public function getId()
+            {
+                return 500;
+            }
+
+            public function toArray()
+            {
+                return ['title' => 'Shoes', 'price' => 150000];
+            }
         };
 
         $event2 = new DummyProductPriceChangedEvent($dummyProduct, 100000.0, 150000.0);

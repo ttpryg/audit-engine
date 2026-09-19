@@ -8,6 +8,7 @@ use Ttpryg\AuditEngine\Entities\AuditLog;
 class MemoryAuditStorage implements AuditRepositoryInterface
 {
     private array $logs = [];
+
     private int $autoIncrement = 1;
 
     public function save(AuditLog $log): AuditLog
@@ -16,6 +17,7 @@ class MemoryAuditStorage implements AuditRepositoryInterface
             $log->setId($this->autoIncrement++);
         }
         $this->logs[$log->getId()] = $log;
+
         return $log;
     }
 
@@ -63,6 +65,7 @@ class MemoryAuditStorage implements AuditRepositoryInterface
             if (isset($criteria['actor_id']) && (string) $log->getActorId() !== (string) $criteria['actor_id']) {
                 return false;
             }
+
             return true;
         });
 

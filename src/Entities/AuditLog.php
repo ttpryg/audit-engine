@@ -9,14 +9,23 @@ use Ttpryg\AuditEngine\Contracts\AuditLogInterface;
 class AuditLog implements AuditLogInterface
 {
     private int|string|null $id;
+
     private string $eventName;
+
     private string $entityType;
+
     private string|int $entityId;
+
     private int|string|null $actorId;
+
     private ?array $oldValues;
+
     private ?array $newValues;
+
     private ?string $ipAddress;
+
     private ?string $userAgent;
+
     private ?DateTimeInterface $createdAt;
 
     public function __construct(
@@ -40,7 +49,7 @@ class AuditLog implements AuditLogInterface
         $this->actorId = $actorId;
         $this->ipAddress = $ipAddress;
         $this->userAgent = $userAgent;
-        $this->createdAt = $createdAt ?? new DateTimeImmutable();
+        $this->createdAt = $createdAt ?? new DateTimeImmutable;
     }
 
     public function getId(): int|string|null
@@ -51,6 +60,7 @@ class AuditLog implements AuditLogInterface
     public function setId(int|string $id): self
     {
         $this->id = $id;
+
         return $this;
     }
 

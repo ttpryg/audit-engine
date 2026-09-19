@@ -12,8 +12,8 @@ class FileAuditStorage implements AuditRepositoryInterface
 
     public function __construct(?string $storagePath = null)
     {
-        $this->storagePath = rtrim($storagePath ?? sys_get_temp_dir() . '/audit_engine_logs', '/');
-        if (!is_dir($this->storagePath)) {
+        $this->storagePath = rtrim($storagePath ?? sys_get_temp_dir().'/audit_engine_logs', '/');
+        if (! is_dir($this->storagePath)) {
             mkdir($this->storagePath, 0777, true);
         }
     }
@@ -24,10 +24,11 @@ class FileAuditStorage implements AuditRepositoryInterface
             $log->setId(uniqid('audit_', true));
         }
 
-        $filename = $this->storagePath . '/log_' . date('Y-m-d') . '.jsonl';
-        $entry = json_encode($log->toArray()) . PHP_EOL;
+        $filename = $this->storagePath.'/log_'.date('Y-m-d').'.jsonl';
+        $entry = json_encode($log->toArray()).PHP_EOL;
 
         file_put_contents($filename, $entry, FILE_APPEND | LOCK_EX);
+
         return $log;
     }
 
@@ -39,6 +40,7 @@ class FileAuditStorage implements AuditRepositoryInterface
                 return $log;
             }
         }
+
         return null;
     }
 
@@ -85,6 +87,7 @@ class FileAuditStorage implements AuditRepositoryInterface
             if (isset($criteria['actor_id']) && (string) $log->getActorId() !== (string) $criteria['actor_id']) {
                 return false;
             }
+
             return true;
         });
 
@@ -93,12 +96,14 @@ class FileAuditStorage implements AuditRepositoryInterface
 
     private function readAllLogs(): array
     {
-        $files = glob($this->storagePath . '/log_*.jsonl');
+        $files = glob($this->storagePath.'/log_*.jsonl');
         $results = [];
 
         foreach ($files as $file) {
             $lines = file($file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-            if ($lines === false) continue;
+            if ($lines === false) {
+                continue;
+            }
 
             foreach ($lines as $line) {
                 $data = json_decode($line, true);
@@ -113,7 +118,7 @@ class FileAuditStorage implements AuditRepositoryInterface
                         ipAddress: $data['ip_address'] ?? null,
                         userAgent: $data['user_agent'] ?? null,
                         id: $data['id'] ?? null,
-                        createdAt: !empty($data['created_at']) ? new DateTimeImmutable($data['created_at']) : null
+                        createdAt: ! empty($data['created_at']) ? new DateTimeImmutable($data['created_at']) : null
                     );
                 }
             }
