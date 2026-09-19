@@ -16,37 +16,24 @@ class DomainEventSubscriber
         $className = get_class($event);
         $shortName = (new \ReflectionClass($event))->getShortName();
 
-        // 1. auth-user events
-        if (str_contains($className, 'AuthUser')) {
-            return $this->handleAuthUserEvent($event, $shortName, $context);
-        }
-
-        // 2. content-engine events
-        if (str_contains($className, 'ContentEngine')) {
-            return $this->handleContentEngineEvent($event, $shortName, $context);
-        }
-
-        // 3. catalog-engine events
-        if (str_contains($className, 'CatalogEngine')) {
+        // 1. Product / Catalog events (by namespace or property)
+        if (str_contains($className, 'CatalogEngine') || property_exists($event, 'product')) {
             return $this->handleCatalogEngineEvent($event, $shortName, $context);
         }
 
-        // 4. cart-engine events
-        if (str_contains($className, 'CartEngine')) {
-            return $this->handleCartEngineEvent($event, $shortName, $context);
+        // 2. User / Auth events (by namespace or property)
+        if (str_contains($className, 'AuthUser') || property_exists($event, 'user')) {
+            return $this->handleAuthUserEvent($event, $shortName, $context);
         }
 
-        // Fallback for generic event objects
-        if (property_exists($event, 'user')) {
-            return $this->auditService->log(
-                eventName: $shortName,
-                entityType: 'user',
-                entityId: method_exists($event->user, 'getId') ? $event->user->getId() : 'unknown',
-                newValues: method_exists($event->user, 'toArray') ? $event->user->toArray() : null,
-                actorId: $context?->actorId,
-                ipAddress: $context?->ipAddress,
-                userAgent: $context?->userAgent
-            );
+        // 3. Content events (by namespace or property)
+        if (str_contains($className, 'ContentEngine') || property_exists($event, 'content') || property_exists($event, 'contentId')) {
+            return $this->handleContentEngineEvent($event, $shortName, $context);
+        }
+
+        // 4. Cart events (by namespace or property)
+        if (str_contains($className, 'CartEngine') || property_exists($event, 'cart')) {
+            return $this->handleCartEngineEvent($event, $shortName, $context);
         }
 
         return null;
@@ -119,10 +106,10 @@ class DomainEventSubscriber
             $oldValues = null;
             $newValues = method_exists($product, 'toArray') ? $product->toArray() : null;
 
-            if ($eventName === 'ProductPriceChangedEvent' && property_exists($event, 'oldPrice')) {
+            if (str_contains($eventName, 'PriceChanged') && property_exists($event, 'oldPrice')) {
                 $oldValues = ['price' => $event->oldPrice];
                 $newValues = ['price' => $event->newPrice];
-            } elseif ($eventName === 'ProductStockUpdatedEvent' && property_exists($event, 'previousStock')) {
+            } elseif (str_contains($eventName, 'StockUpdated') && property_exists($event, 'previousStock')) {
                 $oldValues = ['stock' => $event->previousStock];
                 $newValues = ['stock' => $event->newStock];
             }
