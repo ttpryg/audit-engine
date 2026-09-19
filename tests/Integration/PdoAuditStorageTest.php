@@ -10,6 +10,7 @@ use Ttpryg\AuditEngine\Storage\PdoAuditStorage;
 class PdoAuditStorageTest extends TestCase
 {
     private PDO $pdo;
+
     private PdoAuditStorage $storage;
 
     protected function setUp(): void
@@ -18,7 +19,7 @@ class PdoAuditStorageTest extends TestCase
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         // Create SQLite Memory Table
-        $this->pdo->exec("
+        $this->pdo->exec('
             CREATE TABLE audit_logs (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 event_name VARCHAR(100) NOT NULL,
@@ -31,13 +32,13 @@ class PdoAuditStorageTest extends TestCase
                 user_agent VARCHAR(255) NULL,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )
-        ");
+        ');
 
         $this->storage = new PdoAuditStorage($this->pdo);
     }
 
     // POSITIVE CASE: Save and Find Audit Log via PDO Database Storage
-    public function testSaveAndRetrieveAuditLogFromPdo(): void
+    public function test_save_and_retrieve_audit_log_from_pdo(): void
     {
         $log = new AuditLog(
             eventName: 'UserStatusChangedEvent',

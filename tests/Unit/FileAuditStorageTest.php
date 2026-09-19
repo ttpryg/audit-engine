@@ -9,27 +9,30 @@ use Ttpryg\AuditEngine\Storage\FileAuditStorage;
 class FileAuditStorageTest extends TestCase
 {
     private string $tempDir;
+
     private FileAuditStorage $storage;
 
     protected function setUp(): void
     {
-        $this->tempDir = sys_get_temp_dir() . '/audit_test_' . uniqid();
+        $this->tempDir = sys_get_temp_dir().'/audit_test_'.uniqid();
         $this->storage = new FileAuditStorage($this->tempDir);
     }
 
     protected function tearDown(): void
     {
         if (is_dir($this->tempDir)) {
-            $files = glob($this->tempDir . '/*');
+            $files = glob($this->tempDir.'/*');
             foreach ($files as $file) {
-                if (is_file($file)) unlink($file);
+                if (is_file($file)) {
+                    unlink($file);
+                }
             }
             rmdir($this->tempDir);
         }
     }
 
     // POSITIVE CASE: Save and find audit log from file storage
-    public function testSaveAndFindAuditLogFromFile(): void
+    public function test_save_and_find_audit_log_from_file(): void
     {
         $log = new AuditLog(
             eventName: 'UserRegistered',
@@ -52,7 +55,7 @@ class FileAuditStorageTest extends TestCase
     }
 
     // NEGATIVE CASE: Search non-existent audit log returns empty array
-    public function testSearchNonExistentReturnsEmptyArray(): void
+    public function test_search_non_existent_returns_empty_array(): void
     {
         $results = $this->storage->findByEntity('non_existent', 9999);
         $this->assertEmpty($results);

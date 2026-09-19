@@ -8,7 +8,7 @@ use Ttpryg\AuditEngine\Entities\AuditLog;
 class AuditEntityTest extends TestCase
 {
     // POSITIVE CASE: Create AuditLog entity and check getters & array serialization
-    public function testAuditLogCreationAndGetters(): void
+    public function test_audit_log_creation_and_getters(): void
     {
         $log = new AuditLog(
             eventName: 'ProductPriceChanged',
@@ -37,7 +37,7 @@ class AuditEntityTest extends TestCase
     }
 
     // POSITIVE CASE: Entity Type normalization to lowercase
-    public function testEntityTypeNormalizedToLowercase(): void
+    public function test_entity_type_normalized_to_lowercase(): void
     {
         $log = new AuditLog('UserRegistered', 'USER', 5);
         $this->assertEquals('user', $log->getEntityType());
