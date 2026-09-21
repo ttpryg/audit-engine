@@ -28,21 +28,21 @@ class MemoryAuditStorage implements AuditRepositoryInterface
 
     public function findByEntity(string $entityType, string|int $entityId, int $limit = 50, int $offset = 0): array
     {
-        $filtered = array_filter($this->logs, fn (AuditLog $log) => $log->getEntityType() === strtolower($entityType) && (string) $log->getEntityId() === (string) $entityId);
+        $filtered = array_filter($this->logs, fn (AuditLog $auditLog): bool => $auditLog->getEntityType() === strtolower($entityType) && (string) $auditLog->getEntityId() === (string) $entityId);
 
         return array_slice(array_values($filtered), $offset, $limit);
     }
 
     public function findByActor(int|string $actorId, int $limit = 50, int $offset = 0): array
     {
-        $filtered = array_filter($this->logs, fn (AuditLog $log) => (string) $log->getActorId() === (string) $actorId);
+        $filtered = array_filter($this->logs, fn (AuditLog $auditLog): bool => (string) $auditLog->getActorId() === (string) $actorId);
 
         return array_slice(array_values($filtered), $offset, $limit);
     }
 
     public function findByEvent(string $eventName, int $limit = 50, int $offset = 0): array
     {
-        $filtered = array_filter($this->logs, fn (AuditLog $log) => $log->getEventName() === $eventName);
+        $filtered = array_filter($this->logs, fn (AuditLog $auditLog): bool => $auditLog->getEventName() === $eventName);
 
         return array_slice(array_values($filtered), $offset, $limit);
     }
