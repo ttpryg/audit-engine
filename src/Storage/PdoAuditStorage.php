@@ -9,17 +9,9 @@ use Ttpryg\AuditEngine\Entities\AuditLog;
 
 class PdoAuditStorage implements AuditRepositoryInterface
 {
-    private PDO $pdo;
+    public function __construct(private readonly PDO $pdo, private readonly string $table = 'audit_logs') {}
 
-    private string $table;
-
-    public function __construct(PDO $pdo, string $table = 'audit_logs')
-    {
-        $this->pdo = $pdo;
-        $this->table = $table;
-    }
-
-    public function save(AuditLog $log): AuditLog
+    public function save(AuditLog $auditLog): AuditLog
     {
         $sql = "INSERT INTO {$this->table} 
                 (event_name, entity_type, entity_id, actor_id, old_values, new_values, ip_address, user_agent, created_at) 
@@ -27,21 +19,21 @@ class PdoAuditStorage implements AuditRepositoryInterface
 
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([
-            'event_name' => $log->getEventName(),
-            'entity_type' => $log->getEntityType(),
-            'entity_id' => $log->getEntityId(),
-            'actor_id' => $log->getActorId(),
-            'old_values' => $log->getOldValues() ? json_encode($log->getOldValues()) : null,
-            'new_values' => $log->getNewValues() ? json_encode($log->getNewValues()) : null,
-            'ip_address' => $log->getIpAddress(),
-            'user_agent' => $log->getUserAgent(),
-            'created_at' => $log->getCreatedAt()?->format('Y-m-d H:i:s'),
+            'event_name' => $auditLog->getEventName(),
+            'entity_type' => $auditLog->getEntityType(),
+            'entity_id' => $auditLog->getEntityId(),
+            'actor_id' => $auditLog->getActorId(),
+            'old_values' => $auditLog->getOldValues() ? json_encode($auditLog->getOldValues()) : null,
+            'new_values' => $auditLog->getNewValues() ? json_encode($auditLog->getNewValues()) : null,
+            'ip_address' => $auditLog->getIpAddress(),
+            'user_agent' => $auditLog->getUserAgent(),
+            'created_at' => $auditLog->getCreatedAt()?->format('Y-m-d H:i:s'),
         ]);
 
         $id = $this->pdo->lastInsertId();
-        $log->setId($id);
+        $auditLog->setId($id);
 
-        return $log;
+        return $auditLog;
     }
 
     public function findById(int|string $id): ?AuditLog
@@ -136,7 +128,7 @@ class PdoAuditStorage implements AuditRepositoryInterface
             $params['actor_id'] = $criteria['actor_id'];
         }
 
-        $whereSql = ! empty($where) ? 'WHERE '.implode(' AND ', $where) : '';
+        $whereSql = $where !== [] ? 'WHERE '.implode(' AND ', $where) : '';
         $sql = "SELECT * FROM {$this->table} {$whereSql} ORDER BY id DESC LIMIT :limit OFFSET :offset";
 
         $stmt = $this->pdo->prepare($sql);
@@ -157,8 +149,8 @@ class PdoAuditStorage implements AuditRepositoryInterface
 
     private function mapToEntity(array $data): AuditLog
     {
-        $oldValues = ! empty($data['old_values']) ? json_decode($data['old_values'], true) : null;
-        $newValues = ! empty($data['new_values']) ? json_decode($data['new_values'], true) : null;
+        $oldValues = ! empty($data['old_values']) ? json_decode($data['old_values'], associative: true) : null;
+        $newValues = ! empty($data['new_values']) ? json_decode($data['new_values'], associative: true) : null;
 
         return new AuditLog(
             eventName: $data['event_name'],

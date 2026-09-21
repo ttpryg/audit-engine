@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Ttpryg\AuditEngine\Tests\Integration;
 
 use PDO;
@@ -11,7 +13,7 @@ class PdoAuditStorageTest extends TestCase
 {
     private PDO $pdo;
 
-    private PdoAuditStorage $storage;
+    private PdoAuditStorage $pdoAuditStorage;
 
     protected function setUp(): void
     {
@@ -34,13 +36,13 @@ class PdoAuditStorageTest extends TestCase
             )
         ');
 
-        $this->storage = new PdoAuditStorage($this->pdo);
+        $this->pdoAuditStorage = new PdoAuditStorage($this->pdo);
     }
 
     // POSITIVE CASE: Save and Find Audit Log via PDO Database Storage
     public function test_save_and_retrieve_audit_log_from_pdo(): void
     {
-        $log = new AuditLog(
+        $auditLog = new AuditLog(
             eventName: 'UserStatusChangedEvent',
             entityType: 'user',
             entityId: 88,
@@ -50,19 +52,19 @@ class PdoAuditStorageTest extends TestCase
             ipAddress: '10.0.0.1'
         );
 
-        $saved = $this->storage->save($log);
+        $saved = $this->pdoAuditStorage->save($auditLog);
         $this->assertNotNull($saved->getId());
 
-        $found = $this->storage->findById($saved->getId());
+        $found = $this->pdoAuditStorage->findById($saved->getId());
         $this->assertNotNull($found);
         $this->assertEquals('UserStatusChangedEvent', $found->getEventName());
         $this->assertEquals(['is_active' => true], $found->getOldValues());
         $this->assertEquals(['is_active' => false], $found->getNewValues());
 
-        $byActor = $this->storage->findByActor(1);
+        $byActor = $this->pdoAuditStorage->findByActor(1);
         $this->assertCount(1, $byActor);
 
-        $byEvent = $this->storage->findByEvent('UserStatusChangedEvent');
+        $byEvent = $this->pdoAuditStorage->findByEvent('UserStatusChangedEvent');
         $this->assertCount(1, $byEvent);
     }
 }

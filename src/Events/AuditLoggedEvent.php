@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Ttpryg\AuditEngine\Events;
 
 use Ttpryg\AuditEngine\Entities\AuditLog;

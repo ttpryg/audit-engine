@@ -26,14 +26,14 @@ class DummyProductPriceChangedEvent
 
 class AuditServiceTest extends TestCase
 {
-    private MemoryAuditStorage $storage;
+    private MemoryAuditStorage $memoryAuditStorage;
 
-    private AuditService $service;
+    private AuditService $auditService;
 
     protected function setUp(): void
     {
-        $this->storage = new MemoryAuditStorage;
-        $this->service = new AuditService($this->storage);
+        $this->memoryAuditStorage = new MemoryAuditStorage;
+        $this->auditService = new AuditService($this->memoryAuditStorage);
     }
 
     // POSITIVE CASE: Manual Audit Logging and Dispatching Event
@@ -44,8 +44,8 @@ class AuditServiceTest extends TestCase
             ->method('dispatch')
             ->with($this->isInstanceOf(AuditLoggedEvent::class));
 
-        $service = new AuditService($this->storage, $dispatcher);
-        $log = $service->log(
+        $auditService = new AuditService($this->memoryAuditStorage, $dispatcher);
+        $log = $auditService->log(
             eventName: 'UserLoggedIn',
             entityType: 'user',
             entityId: 42,
@@ -56,31 +56,31 @@ class AuditServiceTest extends TestCase
         $this->assertEquals('UserLoggedIn', $log->getEventName());
         $this->assertEquals(42, $log->getActorId());
 
-        $history = $service->getHistoryForEntity('user', 42);
+        $history = $auditService->getHistoryForEntity('user', 42);
         $this->assertCount(1, $history);
     }
 
     // POSITIVE CASE: Domain Event Subscriber Mapping
     public function test_domain_event_subscriber_maps_events(): void
     {
-        $subscriber = new DomainEventSubscriber($this->service);
+        $domainEventSubscriber = new DomainEventSubscriber($this->auditService);
 
         // Dummy User Object
         $dummyUser = new class
         {
-            public function getId()
+            public function getId(): int
             {
                 return 100;
             }
 
-            public function toArray()
+            public function toArray(): array
             {
                 return ['email' => 'test@example.com'];
             }
         };
 
-        $event1 = new DummyUserRegisteredEvent($dummyUser);
-        $log1 = $subscriber->handle($event1);
+        $dummyUserRegisteredEvent = new DummyUserRegisteredEvent($dummyUser);
+        $log1 = $domainEventSubscriber->handle($dummyUserRegisteredEvent);
 
         $this->assertNotNull($log1);
         $this->assertEquals('DummyUserRegisteredEvent', $log1->getEventName());
@@ -90,19 +90,19 @@ class AuditServiceTest extends TestCase
         // Dummy Product Object
         $dummyProduct = new class
         {
-            public function getId()
+            public function getId(): int
             {
                 return 500;
             }
 
-            public function toArray()
+            public function toArray(): array
             {
                 return ['title' => 'Shoes', 'price' => 150000];
             }
         };
 
-        $event2 = new DummyProductPriceChangedEvent($dummyProduct, 100000.0, 150000.0);
-        $log2 = $subscriber->handle($event2);
+        $dummyProductPriceChangedEvent = new DummyProductPriceChangedEvent($dummyProduct, 100000.0, 150000.0);
+        $log2 = $domainEventSubscriber->handle($dummyProductPriceChangedEvent);
 
         $this->assertNotNull($log2);
         $this->assertEquals(['price' => 100000.0], $log2->getOldValues());
