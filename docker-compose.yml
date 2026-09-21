@@ -1,3 +1,4 @@
+name: audit-engine
 services:
   app:
     build:
