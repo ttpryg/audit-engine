@@ -11,8 +11,8 @@ use Ttpryg\AuditEngine\ValueObjects\AuditLogContext;
 class AuditService
 {
     public function __construct(
-        private AuditRepositoryInterface $repository,
-        private ?EventDispatcherInterface $eventDispatcher = null
+        private readonly AuditRepositoryInterface $auditRepository,
+        private readonly ?EventDispatcherInterface $eventDispatcher = null
     ) {}
 
     public function log(
@@ -25,7 +25,7 @@ class AuditService
         ?string $ipAddress = null,
         ?string $userAgent = null
     ): AuditLog {
-        $log = new AuditLog(
+        $auditLog = new AuditLog(
             eventName: $eventName,
             entityType: $entityType,
             entityId: $entityId,
@@ -36,7 +36,7 @@ class AuditService
             userAgent: $userAgent
         );
 
-        $savedLog = $this->repository->save($log);
+        $savedLog = $this->auditRepository->save($auditLog);
         $this->eventDispatcher?->dispatch(new AuditLoggedEvent($savedLog));
 
         return $savedLog;
@@ -46,7 +46,7 @@ class AuditService
         string $eventName,
         string $entityType,
         string|int $entityId,
-        AuditLogContext $context,
+        AuditLogContext $auditLogContext,
         ?array $oldValues = null,
         ?array $newValues = null
     ): AuditLog {
@@ -56,24 +56,24 @@ class AuditService
             entityId: $entityId,
             oldValues: $oldValues,
             newValues: $newValues,
-            actorId: $context->actorId,
-            ipAddress: $context->ipAddress,
-            userAgent: $context->userAgent
+            actorId: $auditLogContext->actorId,
+            ipAddress: $auditLogContext->ipAddress,
+            userAgent: $auditLogContext->userAgent
         );
     }
 
     public function getHistoryForEntity(string $entityType, string|int $entityId, int $limit = 50, int $offset = 0): array
     {
-        return $this->repository->findByEntity($entityType, $entityId, $limit, $offset);
+        return $this->auditRepository->findByEntity($entityType, $entityId, $limit, $offset);
     }
 
     public function getLogsByActor(int|string $actorId, int $limit = 50, int $offset = 0): array
     {
-        return $this->repository->findByActor($actorId, $limit, $offset);
+        return $this->auditRepository->findByActor($actorId, $limit, $offset);
     }
 
     public function search(array $criteria = [], int $limit = 50, int $offset = 0): array
     {
-        return $this->repository->search($criteria, $limit, $offset);
+        return $this->auditRepository->search($criteria, $limit, $offset);
     }
 }

@@ -8,28 +8,28 @@ use Ttpryg\AuditEngine\Entities\AuditLog;
 
 class FileAuditStorage implements AuditRepositoryInterface
 {
-    private string $storagePath;
+    private readonly string $storagePath;
 
     public function __construct(?string $storagePath = null)
     {
         $this->storagePath = rtrim($storagePath ?? sys_get_temp_dir().'/audit_engine_logs', '/');
         if (! is_dir($this->storagePath)) {
-            mkdir($this->storagePath, 0777, true);
+            mkdir($this->storagePath, 0777, recursive: true);
         }
     }
 
-    public function save(AuditLog $log): AuditLog
+    public function save(AuditLog $auditLog): AuditLog
     {
-        if ($log->getId() === null) {
-            $log->setId(uniqid('audit_', true));
+        if ($auditLog->getId() === null) {
+            $auditLog->setId(uniqid('audit_', more_entropy: true));
         }
 
         $filename = $this->storagePath.'/log_'.date('Y-m-d').'.jsonl';
-        $entry = json_encode($log->toArray()).PHP_EOL;
+        $entry = json_encode($auditLog->toArray()).PHP_EOL;
 
         file_put_contents($filename, $entry, FILE_APPEND | LOCK_EX);
 
-        return $log;
+        return $auditLog;
     }
 
     public function findById(int|string $id): ?AuditLog
@@ -47,9 +47,7 @@ class FileAuditStorage implements AuditRepositoryInterface
     public function findByEntity(string $entityType, string|int $entityId, int $limit = 50, int $offset = 0): array
     {
         $logs = $this->readAllLogs();
-        $filtered = array_filter($logs, function (AuditLog $log) use ($entityType, $entityId) {
-            return $log->getEntityType() === strtolower($entityType) && (string) $log->getEntityId() === (string) $entityId;
-        });
+        $filtered = array_filter($logs, fn (AuditLog $auditLog): bool => $auditLog->getEntityType() === strtolower($entityType) && (string) $auditLog->getEntityId() === (string) $entityId);
 
         return array_slice(array_values($filtered), $offset, $limit);
     }
@@ -57,9 +55,7 @@ class FileAuditStorage implements AuditRepositoryInterface
     public function findByActor(int|string $actorId, int $limit = 50, int $offset = 0): array
     {
         $logs = $this->readAllLogs();
-        $filtered = array_filter($logs, function (AuditLog $log) use ($actorId) {
-            return (string) $log->getActorId() === (string) $actorId;
-        });
+        $filtered = array_filter($logs, fn (AuditLog $auditLog): bool => (string) $auditLog->getActorId() === (string) $actorId);
 
         return array_slice(array_values($filtered), $offset, $limit);
     }
@@ -67,9 +63,7 @@ class FileAuditStorage implements AuditRepositoryInterface
     public function findByEvent(string $eventName, int $limit = 50, int $offset = 0): array
     {
         $logs = $this->readAllLogs();
-        $filtered = array_filter($logs, function (AuditLog $log) use ($eventName) {
-            return $log->getEventName() === $eventName;
-        });
+        $filtered = array_filter($logs, fn (AuditLog $auditLog): bool => $auditLog->getEventName() === $eventName);
 
         return array_slice(array_values($filtered), $offset, $limit);
     }
@@ -77,14 +71,14 @@ class FileAuditStorage implements AuditRepositoryInterface
     public function search(array $criteria = [], int $limit = 50, int $offset = 0): array
     {
         $logs = $this->readAllLogs();
-        $filtered = array_filter($logs, function (AuditLog $log) use ($criteria) {
-            if (isset($criteria['entity_type']) && $log->getEntityType() !== strtolower($criteria['entity_type'])) {
+        $filtered = array_filter($logs, function (AuditLog $auditLog) use ($criteria): bool {
+            if (isset($criteria['entity_type']) && $auditLog->getEntityType() !== strtolower($criteria['entity_type'])) {
                 return false;
             }
-            if (isset($criteria['event_name']) && $log->getEventName() !== $criteria['event_name']) {
+            if (isset($criteria['event_name']) && $auditLog->getEventName() !== $criteria['event_name']) {
                 return false;
             }
-            if (isset($criteria['actor_id']) && (string) $log->getActorId() !== (string) $criteria['actor_id']) {
+            if (isset($criteria['actor_id']) && (string) $auditLog->getActorId() !== (string) $criteria['actor_id']) {
                 return false;
             }
 
@@ -106,7 +100,7 @@ class FileAuditStorage implements AuditRepositoryInterface
             }
 
             foreach ($lines as $line) {
-                $data = json_decode($line, true);
+                $data = json_decode($line, associative: true);
                 if (is_array($data)) {
                     $results[] = new AuditLog(
                         eventName: $data['event_name'],

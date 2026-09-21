@@ -8,47 +8,23 @@ use Ttpryg\AuditEngine\Contracts\AuditLogInterface;
 
 class AuditLog implements AuditLogInterface
 {
-    private int|string|null $id;
+    private readonly string $entityType;
 
-    private string $eventName;
-
-    private string $entityType;
-
-    private string|int $entityId;
-
-    private int|string|null $actorId;
-
-    private ?array $oldValues;
-
-    private ?array $newValues;
-
-    private ?string $ipAddress;
-
-    private ?string $userAgent;
-
-    private ?DateTimeInterface $createdAt;
+    private readonly ?DateTimeInterface $createdAt;
 
     public function __construct(
-        string $eventName,
+        private readonly string $eventName,
         string $entityType,
-        string|int $entityId,
-        ?array $oldValues = null,
-        ?array $newValues = null,
-        int|string|null $actorId = null,
-        ?string $ipAddress = null,
-        ?string $userAgent = null,
-        int|string|null $id = null,
+        private readonly string|int $entityId,
+        private readonly ?array $oldValues = null,
+        private readonly ?array $newValues = null,
+        private readonly int|string|null $actorId = null,
+        private readonly ?string $ipAddress = null,
+        private readonly ?string $userAgent = null,
+        private int|string|null $id = null,
         ?DateTimeInterface $createdAt = null
     ) {
-        $this->id = $id;
-        $this->eventName = $eventName;
         $this->entityType = strtolower($entityType);
-        $this->entityId = $entityId;
-        $this->oldValues = $oldValues;
-        $this->newValues = $newValues;
-        $this->actorId = $actorId;
-        $this->ipAddress = $ipAddress;
-        $this->userAgent = $userAgent;
         $this->createdAt = $createdAt ?? new DateTimeImmutable;
     }
 

@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Ttpryg\AuditEngine\Contracts;
 
 use Ttpryg\AuditEngine\Entities\AuditLog;
 
 interface AuditRepositoryInterface
 {
-    public function save(AuditLog $log): AuditLog;
+    public function save(AuditLog $auditLog): AuditLog;
 
     public function findById(int|string $id): ?AuditLog;
 
