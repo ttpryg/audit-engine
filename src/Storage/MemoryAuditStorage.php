@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Ttpryg\AuditEngine\Storage;
 
 use Ttpryg\AuditEngine\Contracts\AuditRepositoryInterface;

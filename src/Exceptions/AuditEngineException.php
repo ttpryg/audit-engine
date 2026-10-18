@@ -6,4 +6,4 @@ namespace Ttpryg\AuditEngine\Exceptions;
 
 use Exception;
 
-class AuditEngineException extends Exception {}
+class AuditEngineException extends Exception implements ExceptionInterface {}
