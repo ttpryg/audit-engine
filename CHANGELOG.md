@@ -46,6 +46,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Removed `database/schema.sql`; migrations in `database/migrations/` are now the
   source of truth for the schema.
+- Removed the Nginx/PHP-FPM web scaffolding (`.docker/nginx` and the `web`
+  service). Docker Compose now runs a single PHP CLI container for development
+  tooling such as `composer test`, `composer analyse`, and `composer fix`.
 
 ## [1.1.0] - 2026-10-18
 
