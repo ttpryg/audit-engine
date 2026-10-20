@@ -38,6 +38,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   PSR-14 `Psr\EventDispatcher\EventDispatcherInterface`, allowing any compliant
   dispatcher to be injected. `ttpryg/event-dispatcher` is now an optional
   suggestion instead of a hard dependency.
+- **Breaking:** `AuditService::log()` now accepts a `LogAuditRequest` DTO instead
+  of eight individual parameters. Actor, IP address, and user agent are grouped
+  in an optional `AuditLogContext`.
 
 ### Removed
 

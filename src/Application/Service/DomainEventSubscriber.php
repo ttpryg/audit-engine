@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ttpryg\AuditEngine\Application\Service;
 
+use Ttpryg\AuditEngine\Application\DTO\LogAuditRequest;
 use Ttpryg\AuditEngine\Domain\Entity\AuditLog;
 use Ttpryg\AuditEngine\Domain\ValueObject\AuditLogContext;
 
@@ -52,16 +53,14 @@ class DomainEventSubscriber
                 ? ['is_active' => $event->newState]
                 : (method_exists($user, 'toArray') ? $user->toArray() : null);
 
-            return $this->auditService->log(
+            return $this->auditService->log(new LogAuditRequest(
                 eventName: $eventName,
                 entityType: 'user',
                 entityId: $userId,
                 oldValues: $oldValues,
                 newValues: $newValues,
-                actorId: $auditLogContext?->actorId ?? $userId,
-                ipAddress: $auditLogContext?->ipAddress,
-                userAgent: $auditLogContext?->userAgent
-            );
+                context: $this->contextWithActor($auditLogContext, $userId)
+            ));
         }
 
         return null;
@@ -73,27 +72,26 @@ class DomainEventSubscriber
             $content = $event->content;
             $contentId = method_exists($content, 'getId') ? $content->getId() : 'unknown';
 
-            return $this->auditService->log(
+            return $this->auditService->log(new LogAuditRequest(
                 eventName: $eventName,
                 entityType: 'content',
                 entityId: $contentId,
                 newValues: method_exists($content, 'toArray') ? $content->toArray() : null,
-                actorId: $auditLogContext?->actorId ?? (method_exists($content, 'getAuthorId') ? $content->getAuthorId() : null),
-                ipAddress: $auditLogContext?->ipAddress,
-                userAgent: $auditLogContext?->userAgent
-            );
+                context: $this->contextWithActor(
+                    $auditLogContext,
+                    method_exists($content, 'getAuthorId') ? $content->getAuthorId() : null
+                )
+            ));
         }
 
         if (property_exists($event, 'contentId')) {
-            return $this->auditService->log(
+            return $this->auditService->log(new LogAuditRequest(
                 eventName: $eventName,
                 entityType: 'content',
                 entityId: $event->contentId,
                 oldValues: ['soft_delete' => $event->softDeleted ?? true],
-                actorId: $auditLogContext?->actorId,
-                ipAddress: $auditLogContext?->ipAddress,
-                userAgent: $auditLogContext?->userAgent
-            );
+                context: $auditLogContext
+            ));
         }
 
         return null;
@@ -116,16 +114,14 @@ class DomainEventSubscriber
                 $newValues = ['stock' => $event->newStock];
             }
 
-            return $this->auditService->log(
+            return $this->auditService->log(new LogAuditRequest(
                 eventName: $eventName,
                 entityType: 'product',
                 entityId: $productId,
                 oldValues: $oldValues,
                 newValues: $newValues,
-                actorId: $auditLogContext?->actorId,
-                ipAddress: $auditLogContext?->ipAddress,
-                userAgent: $auditLogContext?->userAgent
-            );
+                context: $auditLogContext
+            ));
         }
 
         return null;
@@ -145,17 +141,28 @@ class DomainEventSubscriber
                 $newValues = $event->condition->toArray();
             }
 
-            return $this->auditService->log(
+            return $this->auditService->log(new LogAuditRequest(
                 eventName: $eventName,
                 entityType: 'cart',
                 entityId: $cartId,
                 newValues: $newValues,
-                actorId: $auditLogContext?->actorId ?? $userId,
-                ipAddress: $auditLogContext?->ipAddress,
-                userAgent: $auditLogContext?->userAgent
-            );
+                context: $this->contextWithActor($auditLogContext, $userId)
+            ));
         }
 
         return null;
+    }
+
+    private function contextWithActor(?AuditLogContext $auditLogContext, int|string|null $defaultActorId = null): AuditLogContext
+    {
+        if (! $auditLogContext instanceof \Ttpryg\AuditEngine\Domain\ValueObject\AuditLogContext) {
+            return new AuditLogContext(actorId: $defaultActorId);
+        }
+
+        return new AuditLogContext(
+            actorId: $auditLogContext->actorId ?? $defaultActorId,
+            ipAddress: $auditLogContext->ipAddress,
+            userAgent: $auditLogContext->userAgent
+        );
     }
 }
