@@ -6,6 +6,7 @@ namespace Ttpryg\AuditEngine\Infrastructure\Persistence\Pdo;
 
 use DateTimeImmutable;
 use PDO;
+use RuntimeException;
 use Ttpryg\AuditEngine\Domain\Entity\AuditLog;
 use Ttpryg\AuditEngine\Domain\Repository\AuditRepositoryInterface;
 
@@ -33,6 +34,10 @@ class PdoAuditStorage implements AuditRepositoryInterface
         ]);
 
         $id = $this->pdo->lastInsertId();
+        if ($id === false) {
+            throw new RuntimeException('Unable to retrieve the inserted audit log ID.');
+        }
+
         $auditLog->setId($id);
 
         return $auditLog;
@@ -49,6 +54,9 @@ class PdoAuditStorage implements AuditRepositoryInterface
         return $data ? $this->mapToEntity($data) : null;
     }
 
+    /**
+     * @return array<int, AuditLog>
+     */
     public function findByEntity(string $entityType, string|int $entityId, int $limit = 50, int $offset = 0): array
     {
         $sql = "SELECT * FROM {$this->table} 
@@ -70,6 +78,9 @@ class PdoAuditStorage implements AuditRepositoryInterface
         return $results;
     }
 
+    /**
+     * @return array<int, AuditLog>
+     */
     public function findByActor(int|string $actorId, int $limit = 50, int $offset = 0): array
     {
         $sql = "SELECT * FROM {$this->table} 
@@ -90,6 +101,9 @@ class PdoAuditStorage implements AuditRepositoryInterface
         return $results;
     }
 
+    /**
+     * @return array<int, AuditLog>
+     */
     public function findByEvent(string $eventName, int $limit = 50, int $offset = 0): array
     {
         $sql = "SELECT * FROM {$this->table} 
@@ -110,6 +124,10 @@ class PdoAuditStorage implements AuditRepositoryInterface
         return $results;
     }
 
+    /**
+     * @param  array<string, mixed>  $criteria
+     * @return array<int, AuditLog>
+     */
     public function search(array $criteria = [], int $limit = 50, int $offset = 0): array
     {
         $where = [];
@@ -149,6 +167,9 @@ class PdoAuditStorage implements AuditRepositoryInterface
         return $results;
     }
 
+    /**
+     * @param  array<string, mixed>  $data
+     */
     private function mapToEntity(array $data): AuditLog
     {
         $oldValues = ! empty($data['old_values']) ? json_decode($data['old_values'], associative: true) : null;

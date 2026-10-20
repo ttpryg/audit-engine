@@ -44,51 +44,57 @@ class DomainEventSubscriber
 
     private function handleAuthUserEvent(object $event, string $eventName, ?AuditLogContext $auditLogContext): ?AuditLog
     {
-        if (property_exists($event, 'user')) {
-            $user = $event->user;
-            $userId = method_exists($user, 'getId') ? $user->getId() : 'unknown';
-
-            $oldValues = property_exists($event, 'previousState') ? ['is_active' => $event->previousState] : null;
-            $newValues = property_exists($event, 'newState')
-                ? ['is_active' => $event->newState]
-                : (method_exists($user, 'toArray') ? $user->toArray() : null);
-
-            return $this->auditService->log(new LogAuditRequest(
-                eventName: $eventName,
-                entityType: 'user',
-                entityId: $userId,
-                oldValues: $oldValues,
-                newValues: $newValues,
-                context: $this->contextWithActor($auditLogContext, $userId)
-            ));
+        if (! property_exists($event, 'user')) {
+            return null;
         }
 
-        return null;
+        $user = $event->user;
+        if (! is_object($user)) {
+            return null;
+        }
+
+        $userId = $this->idOf($user);
+
+        $oldValues = property_exists($event, 'previousState') ? ['is_active' => $event->previousState] : null;
+        $newValues = property_exists($event, 'newState')
+            ? ['is_active' => $event->newState]
+            : $this->arrayOf($user);
+
+        return $this->auditService->log(new LogAuditRequest(
+            eventName: $eventName,
+            entityType: 'user',
+            entityId: $userId,
+            oldValues: $oldValues,
+            newValues: $newValues,
+            context: $this->contextWithActor($auditLogContext, $userId)
+        ));
     }
 
     private function handleContentEngineEvent(object $event, string $eventName, ?AuditLogContext $auditLogContext): ?AuditLog
     {
         if (property_exists($event, 'content')) {
             $content = $event->content;
-            $contentId = method_exists($content, 'getId') ? $content->getId() : 'unknown';
+            if (is_object($content)) {
+                return $this->auditService->log(new LogAuditRequest(
+                    eventName: $eventName,
+                    entityType: 'content',
+                    entityId: $this->idOf($content),
+                    newValues: $this->arrayOf($content),
+                    context: $this->contextWithActor($auditLogContext, $this->authorIdOf($content))
+                ));
+            }
+        }
+
+        if (property_exists($event, 'contentId')) {
+            $contentId = $event->contentId;
+            if (! is_int($contentId) && ! is_string($contentId)) {
+                return null;
+            }
 
             return $this->auditService->log(new LogAuditRequest(
                 eventName: $eventName,
                 entityType: 'content',
                 entityId: $contentId,
-                newValues: method_exists($content, 'toArray') ? $content->toArray() : null,
-                context: $this->contextWithActor(
-                    $auditLogContext,
-                    method_exists($content, 'getAuthorId') ? $content->getAuthorId() : null
-                )
-            ));
-        }
-
-        if (property_exists($event, 'contentId')) {
-            return $this->auditService->log(new LogAuditRequest(
-                eventName: $eventName,
-                entityType: 'content',
-                entityId: $event->contentId,
                 oldValues: ['soft_delete' => $event->softDeleted ?? true],
                 context: $auditLogContext
             ));
@@ -99,63 +105,78 @@ class DomainEventSubscriber
 
     private function handleCatalogEngineEvent(object $event, string $eventName, ?AuditLogContext $auditLogContext): ?AuditLog
     {
-        if (property_exists($event, 'product')) {
-            $product = $event->product;
-            $productId = method_exists($product, 'getId') ? $product->getId() : 'unknown';
-
-            $oldValues = null;
-            $newValues = method_exists($product, 'toArray') ? $product->toArray() : null;
-
-            if (str_contains($eventName, 'PriceChanged') && property_exists($event, 'oldPrice')) {
-                $oldValues = ['price' => $event->oldPrice];
-                $newValues = ['price' => $event->newPrice];
-            } elseif (str_contains($eventName, 'StockUpdated') && property_exists($event, 'previousStock')) {
-                $oldValues = ['stock' => $event->previousStock];
-                $newValues = ['stock' => $event->newStock];
-            }
-
-            return $this->auditService->log(new LogAuditRequest(
-                eventName: $eventName,
-                entityType: 'product',
-                entityId: $productId,
-                oldValues: $oldValues,
-                newValues: $newValues,
-                context: $auditLogContext
-            ));
+        if (! property_exists($event, 'product')) {
+            return null;
         }
 
-        return null;
+        $product = $event->product;
+        if (! is_object($product)) {
+            return null;
+        }
+
+        $oldValues = null;
+        $newValues = $this->arrayOf($product);
+
+        if (
+            str_contains($eventName, 'PriceChanged')
+            && property_exists($event, 'oldPrice')
+            && property_exists($event, 'newPrice')
+        ) {
+            $oldValues = ['price' => $event->oldPrice];
+            $newValues = ['price' => $event->newPrice];
+        } elseif (
+            str_contains($eventName, 'StockUpdated')
+            && property_exists($event, 'previousStock')
+            && property_exists($event, 'newStock')
+        ) {
+            $oldValues = ['stock' => $event->previousStock];
+            $newValues = ['stock' => $event->newStock];
+        }
+
+        return $this->auditService->log(new LogAuditRequest(
+            eventName: $eventName,
+            entityType: 'product',
+            entityId: $this->idOf($product),
+            oldValues: $oldValues,
+            newValues: $newValues,
+            context: $auditLogContext
+        ));
     }
 
     private function handleCartEngineEvent(object $event, string $eventName, ?AuditLogContext $auditLogContext): ?AuditLog
     {
-        if (property_exists($event, 'cart')) {
-            $cart = $event->cart;
-            $cartId = method_exists($cart, 'getId') ? $cart->getId() : 'unknown';
-            $userId = method_exists($cart, 'getUserId') ? $cart->getUserId() : null;
-
-            $newValues = null;
-            if (property_exists($event, 'item') && method_exists($event->item, 'toArray')) {
-                $newValues = $event->item->toArray();
-            } elseif (property_exists($event, 'condition') && method_exists($event->condition, 'toArray')) {
-                $newValues = $event->condition->toArray();
-            }
-
-            return $this->auditService->log(new LogAuditRequest(
-                eventName: $eventName,
-                entityType: 'cart',
-                entityId: $cartId,
-                newValues: $newValues,
-                context: $this->contextWithActor($auditLogContext, $userId)
-            ));
+        if (! property_exists($event, 'cart')) {
+            return null;
         }
 
-        return null;
+        $cart = $event->cart;
+        if (! is_object($cart)) {
+            return null;
+        }
+
+        $newValues = null;
+
+        $item = $event->item ?? null;
+        $condition = $event->condition ?? null;
+
+        if (is_object($item) && method_exists($item, 'toArray')) {
+            $newValues = $this->arrayOf($item);
+        } elseif (is_object($condition) && method_exists($condition, 'toArray')) {
+            $newValues = $this->arrayOf($condition);
+        }
+
+        return $this->auditService->log(new LogAuditRequest(
+            eventName: $eventName,
+            entityType: 'cart',
+            entityId: $this->idOf($cart),
+            newValues: $newValues,
+            context: $this->contextWithActor($auditLogContext, $this->userIdOf($cart))
+        ));
     }
 
     private function contextWithActor(?AuditLogContext $auditLogContext, int|string|null $defaultActorId = null): AuditLogContext
     {
-        if (! $auditLogContext instanceof \Ttpryg\AuditEngine\Domain\ValueObject\AuditLogContext) {
+        if (! $auditLogContext instanceof AuditLogContext) {
             return new AuditLogContext(actorId: $defaultActorId);
         }
 
@@ -164,5 +185,57 @@ class DomainEventSubscriber
             ipAddress: $auditLogContext->ipAddress,
             userAgent: $auditLogContext->userAgent
         );
+    }
+
+    private function idOf(object $entity): int|string
+    {
+        if (method_exists($entity, 'getId')) {
+            $id = $entity->getId();
+            if (is_int($id) || is_string($id)) {
+                return $id;
+            }
+        }
+
+        return 'unknown';
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function arrayOf(object $entity): ?array
+    {
+        if (! method_exists($entity, 'toArray')) {
+            return null;
+        }
+
+        $data = $entity->toArray();
+        if (! is_array($data)) {
+            return null;
+        }
+
+        /** @var array<string, mixed> $data */
+        return $data;
+    }
+
+    private function authorIdOf(object $content): int|string|null
+    {
+        if (! method_exists($content, 'getAuthorId')) {
+            return null;
+        }
+
+        $id = $content->getAuthorId();
+
+        return is_int($id) || is_string($id) ? $id : null;
+    }
+
+    private function userIdOf(object $cart): int|string|null
+    {
+        if (! method_exists($cart, 'getUserId')) {
+            return null;
+        }
+
+        $id = $cart->getUserId();
+
+        return is_int($id) || is_string($id) ? $id : null;
     }
 }

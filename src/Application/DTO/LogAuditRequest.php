@@ -11,6 +11,10 @@ use Ttpryg\AuditEngine\Domain\ValueObject\AuditLogContext;
  */
 final class LogAuditRequest
 {
+    /**
+     * @param  array<string, mixed>|null  $oldValues
+     * @param  array<string, mixed>|null  $newValues
+     */
     public function __construct(
         public readonly string $eventName,
         public readonly string $entityType,

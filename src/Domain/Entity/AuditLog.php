@@ -11,8 +11,12 @@ class AuditLog implements AuditLogInterface
 {
     private readonly string $entityType;
 
-    private readonly ?DateTimeInterface $createdAt;
+    private readonly DateTimeInterface $createdAt;
 
+    /**
+     * @param  array<string, mixed>|null  $oldValues
+     * @param  array<string, mixed>|null  $newValues
+     */
     public function __construct(
         private readonly string $eventName,
         string $entityType,
@@ -61,11 +65,17 @@ class AuditLog implements AuditLogInterface
         return $this->actorId;
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getOldValues(): ?array
     {
         return $this->oldValues;
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getNewValues(): ?array
     {
         return $this->newValues;
@@ -86,6 +96,9 @@ class AuditLog implements AuditLogInterface
         return $this->createdAt;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toArray(): array
     {
         return [
@@ -98,7 +111,7 @@ class AuditLog implements AuditLogInterface
             'new_values' => $this->newValues,
             'ip_address' => $this->ipAddress,
             'user_agent' => $this->userAgent,
-            'created_at' => $this->createdAt?->format(DateTimeInterface::ATOM),
+            'created_at' => $this->createdAt->format(DateTimeInterface::ATOM),
         ];
     }
 }

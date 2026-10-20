@@ -23,7 +23,7 @@ class FileAuditStorageTest extends TestCase
     protected function tearDown(): void
     {
         if (is_dir($this->tempDir)) {
-            $files = glob($this->tempDir.'/*');
+            $files = glob($this->tempDir.'/*') ?: [];
             foreach ($files as $file) {
                 if (is_file($file)) {
                     unlink($file);
