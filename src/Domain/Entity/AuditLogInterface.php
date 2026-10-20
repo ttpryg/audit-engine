@@ -18,8 +18,14 @@ interface AuditLogInterface
 
     public function getActorId(): int|string|null;
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getOldValues(): ?array;
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getNewValues(): ?array;
 
     public function getIpAddress(): ?string;

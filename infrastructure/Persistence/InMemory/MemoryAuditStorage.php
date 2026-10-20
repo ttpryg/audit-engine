@@ -9,6 +9,9 @@ use Ttpryg\AuditEngine\Domain\Repository\AuditRepositoryInterface;
 
 class MemoryAuditStorage implements AuditRepositoryInterface
 {
+    /**
+     * @var array<int|string, AuditLog>
+     */
     private array $logs = [];
 
     private int $autoIncrement = 1;
@@ -28,6 +31,9 @@ class MemoryAuditStorage implements AuditRepositoryInterface
         return $this->logs[$id] ?? null;
     }
 
+    /**
+     * @return array<int, AuditLog>
+     */
     public function findByEntity(string $entityType, string|int $entityId, int $limit = 50, int $offset = 0): array
     {
         $filtered = array_filter($this->logs, fn (AuditLog $auditLog): bool => $auditLog->getEntityType() === strtolower($entityType) && (string) $auditLog->getEntityId() === (string) $entityId);
@@ -35,6 +41,9 @@ class MemoryAuditStorage implements AuditRepositoryInterface
         return array_slice(array_values($filtered), $offset, $limit);
     }
 
+    /**
+     * @return array<int, AuditLog>
+     */
     public function findByActor(int|string $actorId, int $limit = 50, int $offset = 0): array
     {
         $filtered = array_filter($this->logs, fn (AuditLog $auditLog): bool => (string) $auditLog->getActorId() === (string) $actorId);
@@ -42,6 +51,9 @@ class MemoryAuditStorage implements AuditRepositoryInterface
         return array_slice(array_values($filtered), $offset, $limit);
     }
 
+    /**
+     * @return array<int, AuditLog>
+     */
     public function findByEvent(string $eventName, int $limit = 50, int $offset = 0): array
     {
         $filtered = array_filter($this->logs, fn (AuditLog $auditLog): bool => $auditLog->getEventName() === $eventName);
@@ -49,6 +61,10 @@ class MemoryAuditStorage implements AuditRepositoryInterface
         return array_slice(array_values($filtered), $offset, $limit);
     }
 
+    /**
+     * @param  array<string, mixed>  $criteria
+     * @return array<int, AuditLog>
+     */
     public function search(array $criteria = [], int $limit = 50, int $offset = 0): array
     {
         $filtered = array_filter($this->logs, function (AuditLog $auditLog) use ($criteria): bool {

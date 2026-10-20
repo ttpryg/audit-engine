@@ -12,3 +12,4 @@ tests export-ignore
 docker-compose.yml export-ignore
 phpunit.xml export-ignore
 rector.php export-ignore
+phpstan.neon export-ignore

@@ -39,6 +39,10 @@ class AuditService
         return $savedLog;
     }
 
+    /**
+     * @param  array<string, mixed>|null  $oldValues
+     * @param  array<string, mixed>|null  $newValues
+     */
     public function logWithContext(
         string $eventName,
         string $entityType,
@@ -57,16 +61,26 @@ class AuditService
         ));
     }
 
+    /**
+     * @return array<int, AuditLog>
+     */
     public function getHistoryForEntity(string $entityType, string|int $entityId, int $limit = 50, int $offset = 0): array
     {
         return $this->auditRepository->findByEntity($entityType, $entityId, $limit, $offset);
     }
 
+    /**
+     * @return array<int, AuditLog>
+     */
     public function getLogsByActor(int|string $actorId, int $limit = 50, int $offset = 0): array
     {
         return $this->auditRepository->findByActor($actorId, $limit, $offset);
     }
 
+    /**
+     * @param  array<string, mixed>  $criteria
+     * @return array<int, AuditLog>
+     */
     public function search(array $criteria = [], int $limit = 50, int $offset = 0): array
     {
         return $this->auditRepository->search($criteria, $limit, $offset);

@@ -74,6 +74,9 @@ class AuditServiceTest extends TestCase
                 return 100;
             }
 
+            /**
+             * @return array<string, string>
+             */
             public function toArray(): array
             {
                 return ['email' => 'test@example.com'];
@@ -96,6 +99,9 @@ class AuditServiceTest extends TestCase
                 return 500;
             }
 
+            /**
+             * @return array<string, string|int>
+             */
             public function toArray(): array
             {
                 return ['title' => 'Shoes', 'price' => 150000];
