@@ -50,7 +50,9 @@ the `audit_logs` table plus `idx_entity`, `idx_actor`, and `idx_event` indexes.
 
 ```php
 use PDO;
+use Ttpryg\AuditEngine\Application\DTO\LogAuditRequest;
 use Ttpryg\AuditEngine\Application\Service\AuditService;
+use Ttpryg\AuditEngine\Domain\ValueObject\AuditLogContext;
 use Ttpryg\AuditEngine\Infrastructure\Persistence\Pdo\PdoAuditStorage;
 
 $pdo = new PDO("mysql:host=localhost;dbname=my_db", "root", "secret");
@@ -58,15 +60,17 @@ $storage = new PdoAuditStorage($pdo);
 $auditService = new AuditService($storage);
 
 // Manual Audit Log
-$auditService->log(
+$auditService->log(new LogAuditRequest(
     eventName: 'ProductPriceChanged',
     entityType: 'product',
     entityId: 101,
     oldValues: ['price' => 100000],
     newValues: ['price' => 120000],
-    actorId: 5,
-    ipAddress: $_SERVER['REMOTE_ADDR'] ?? null
-);
+    context: new AuditLogContext(
+        actorId: 5,
+        ipAddress: $_SERVER['REMOTE_ADDR'] ?? null
+    )
+));
 
 // Retrieve History for a Product
 $history = $auditService->getHistoryForEntity('product', 101);

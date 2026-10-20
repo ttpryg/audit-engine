@@ -4,9 +4,11 @@ namespace Ttpryg\AuditEngine\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
 use Psr\EventDispatcher\EventDispatcherInterface;
+use Ttpryg\AuditEngine\Application\DTO\LogAuditRequest;
 use Ttpryg\AuditEngine\Application\Service\AuditService;
 use Ttpryg\AuditEngine\Application\Service\DomainEventSubscriber;
 use Ttpryg\AuditEngine\Domain\Event\AuditLoggedEvent;
+use Ttpryg\AuditEngine\Domain\ValueObject\AuditLogContext;
 use Ttpryg\AuditEngine\Infrastructure\Persistence\InMemory\MemoryAuditStorage;
 
 // Dummy Domain Event Classes mimicking other libraries
@@ -45,13 +47,12 @@ class AuditServiceTest extends TestCase
             ->with($this->isInstanceOf(AuditLoggedEvent::class));
 
         $auditService = new AuditService($this->memoryAuditStorage, $dispatcher);
-        $log = $auditService->log(
+        $log = $auditService->log(new LogAuditRequest(
             eventName: 'UserLoggedIn',
             entityType: 'user',
             entityId: 42,
-            actorId: 42,
-            ipAddress: '192.168.1.1'
-        );
+            context: new AuditLogContext(actorId: 42, ipAddress: '192.168.1.1')
+        ));
 
         $this->assertEquals('UserLoggedIn', $log->getEventName());
         $this->assertEquals(42, $log->getActorId());

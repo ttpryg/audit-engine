@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Ttpryg\AuditEngine\Application\Service;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
+use Ttpryg\AuditEngine\Application\DTO\LogAuditRequest;
 use Ttpryg\AuditEngine\Domain\Entity\AuditLog;
 use Ttpryg\AuditEngine\Domain\Event\AuditLoggedEvent;
 use Ttpryg\AuditEngine\Domain\Repository\AuditRepositoryInterface;
@@ -17,25 +18,19 @@ class AuditService
         private readonly ?EventDispatcherInterface $eventDispatcher = null
     ) {}
 
-    public function log(
-        string $eventName,
-        string $entityType,
-        string|int $entityId,
-        ?array $oldValues = null,
-        ?array $newValues = null,
-        int|string|null $actorId = null,
-        ?string $ipAddress = null,
-        ?string $userAgent = null
-    ): AuditLog {
+    public function log(LogAuditRequest $logAuditRequest): AuditLog
+    {
+        $context = $logAuditRequest->context ?? new AuditLogContext;
+
         $auditLog = new AuditLog(
-            eventName: $eventName,
-            entityType: $entityType,
-            entityId: $entityId,
-            oldValues: $oldValues,
-            newValues: $newValues,
-            actorId: $actorId,
-            ipAddress: $ipAddress,
-            userAgent: $userAgent
+            eventName: $logAuditRequest->eventName,
+            entityType: $logAuditRequest->entityType,
+            entityId: $logAuditRequest->entityId,
+            oldValues: $logAuditRequest->oldValues,
+            newValues: $logAuditRequest->newValues,
+            actorId: $context->actorId,
+            ipAddress: $context->ipAddress,
+            userAgent: $context->userAgent
         );
 
         $savedLog = $this->auditRepository->save($auditLog);
@@ -52,16 +47,14 @@ class AuditService
         ?array $oldValues = null,
         ?array $newValues = null
     ): AuditLog {
-        return $this->log(
+        return $this->log(new LogAuditRequest(
             eventName: $eventName,
             entityType: $entityType,
             entityId: $entityId,
             oldValues: $oldValues,
             newValues: $newValues,
-            actorId: $auditLogContext->actorId,
-            ipAddress: $auditLogContext->ipAddress,
-            userAgent: $auditLogContext->userAgent
-        );
+            context: $auditLogContext
+        ));
     }
 
     public function getHistoryForEntity(string $entityType, string|int $entityId, int $limit = 50, int $offset = 0): array
