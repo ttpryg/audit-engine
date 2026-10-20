@@ -60,6 +60,19 @@ class DatabaseMigratorTest extends TestCase
         $this->assertTrue($this->sqliteObjectExists('table', 'audit_engine_migrations'));
     }
 
+    // POSITIVE CASE: Re-running the baseline DDL after a lost tracker is safe
+    public function test_baseline_migration_ddl_is_idempotent(): void
+    {
+        $this->databaseMigrator->migrate();
+        $this->pdo->exec('DELETE FROM audit_engine_migrations');
+
+        $executed = $this->databaseMigrator->migrate();
+
+        $this->assertSame([self::MIGRATION], $executed);
+        $this->assertTrue($this->sqliteObjectExists('table', 'audit_logs'));
+        $this->assertTrue($this->sqliteObjectExists('index', 'idx_entity'));
+    }
+
     // POSITIVE CASE: Rollback drops the table and removes the tracker entry
     public function test_rollback_drops_table_and_removes_tracker_entry(): void
     {
