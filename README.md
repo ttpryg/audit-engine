@@ -44,8 +44,8 @@ CREATE TABLE IF NOT EXISTS audit_logs (
 
 ```php
 use PDO;
-use Ttpryg\AuditEngine\Repositories\PdoAuditStorage;
-use Ttpryg\AuditEngine\Services\AuditService;
+use Ttpryg\AuditEngine\Application\Service\AuditService;
+use Ttpryg\AuditEngine\Storage\PdoAuditStorage;
 
 $pdo = new PDO("mysql:host=localhost;dbname=my_db", "root", "secret");
 $storage = new PdoAuditStorage($pdo);
@@ -69,8 +69,8 @@ $history = $auditService->getHistoryForEntity('product', 101);
 ### 2. Automatic Event Subscription (Decoupled Integration)
 
 ```php
-use Ttpryg\AuditEngine\Services\DomainEventSubscriber;
-use Ttpryg\AuditEngine\ValueObjects\AuditLogContext;
+use Ttpryg\AuditEngine\Application\Service\DomainEventSubscriber;
+use Ttpryg\AuditEngine\Domain\ValueObject\AuditLogContext;
 
 $subscriber = new DomainEventSubscriber($auditService);
 $context = new AuditLogContext(actorId: 42, ipAddress: '192.168.1.1');

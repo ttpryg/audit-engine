@@ -6,7 +6,7 @@ namespace Ttpryg\AuditEngine\Tests\Integration;
 
 use PDO;
 use PHPUnit\Framework\TestCase;
-use Ttpryg\AuditEngine\Entities\AuditLog;
+use Ttpryg\AuditEngine\Domain\Entity\AuditLog;
 use Ttpryg\AuditEngine\Storage\PdoAuditStorage;
 
 class PdoAuditStorageTest extends TestCase

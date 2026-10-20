@@ -5,6 +5,21 @@ All notable changes to `ttpryg/audit-engine` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- **Breaking:** Split the codebase into Domain and Application layers following
+  Clean Architecture / DDD conventions.
+  - `Entities\AuditLog` → `Domain\Entity\AuditLog`
+  - `Contracts\AuditLogInterface` → `Domain\Entity\AuditLogInterface`
+  - `ValueObjects\AuditLogContext` → `Domain\ValueObject\AuditLogContext`
+  - `Contracts\AuditRepositoryInterface` → `Domain\Repository\AuditRepositoryInterface`
+  - `Events\AuditLoggedEvent` → `Domain\Event\AuditLoggedEvent`
+  - `Exceptions\*` → `Domain\Exception\*`
+  - `Services\AuditService` → `Application\Service\AuditService`
+  - `Services\DomainEventSubscriber` → `Application\Service\DomainEventSubscriber`
+
 ## [1.1.0] - 2026-10-18
 
 ### Added
@@ -42,8 +57,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Structured audit trails (`AuditLog`, `AuditLogContext`): `event_name`, `entity_type`,
   `entity_id`, `actor_id`, `old_values`/`new_values`, `ip_address`, and `user_agent`.
 - Optional PDO storage schema and `DatabaseMigrator`.
-
-[Unreleased]: https://github.com/ttpryg/audit-engine/compare/1.0.2...HEAD
-[1.0.2]: https://github.com/ttpryg/audit-engine/compare/1.0.1...1.0.2
-[1.0.1]: https://github.com/ttpryg/audit-engine/compare/1.0.0...1.0.1
-[1.0.0]: https://github.com/ttpryg/audit-engine/releases/tag/1.0.0

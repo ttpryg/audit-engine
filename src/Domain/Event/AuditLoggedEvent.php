@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Ttpryg\AuditEngine\Events;
+namespace Ttpryg\AuditEngine\Domain\Event;
 
-use Ttpryg\AuditEngine\Entities\AuditLog;
+use Ttpryg\AuditEngine\Domain\Entity\AuditLog;
 
 class AuditLoggedEvent
 {

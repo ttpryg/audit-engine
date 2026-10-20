@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Ttpryg\AuditEngine\Contracts;
+namespace Ttpryg\AuditEngine\Domain\Repository;
 
-use Ttpryg\AuditEngine\Entities\AuditLog;
+use Ttpryg\AuditEngine\Domain\Entity\AuditLog;
 
 interface AuditRepositoryInterface
 {

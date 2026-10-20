@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Ttpryg\AuditEngine\Services;
+namespace Ttpryg\AuditEngine\Application\Service;
 
-use Ttpryg\AuditEngine\Contracts\AuditRepositoryInterface;
 use Ttpryg\AuditEngine\Contracts\EventDispatcherInterface;
-use Ttpryg\AuditEngine\Entities\AuditLog;
-use Ttpryg\AuditEngine\Events\AuditLoggedEvent;
-use Ttpryg\AuditEngine\ValueObjects\AuditLogContext;
+use Ttpryg\AuditEngine\Domain\Entity\AuditLog;
+use Ttpryg\AuditEngine\Domain\Event\AuditLoggedEvent;
+use Ttpryg\AuditEngine\Domain\Repository\AuditRepositoryInterface;
+use Ttpryg\AuditEngine\Domain\ValueObject\AuditLogContext;
 
 class AuditService
 {

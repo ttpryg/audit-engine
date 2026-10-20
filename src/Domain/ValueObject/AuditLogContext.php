@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Ttpryg\AuditEngine\ValueObjects;
+namespace Ttpryg\AuditEngine\Domain\ValueObject;
 
 class AuditLogContext
 {

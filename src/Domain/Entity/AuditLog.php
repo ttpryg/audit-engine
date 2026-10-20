@@ -2,11 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Ttpryg\AuditEngine\Entities;
+namespace Ttpryg\AuditEngine\Domain\Entity;
 
 use DateTimeImmutable;
 use DateTimeInterface;
-use Ttpryg\AuditEngine\Contracts\AuditLogInterface;
 
 class AuditLog implements AuditLogInterface
 {
