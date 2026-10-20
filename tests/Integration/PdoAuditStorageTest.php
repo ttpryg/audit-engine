@@ -7,6 +7,7 @@ namespace Ttpryg\AuditEngine\Tests\Integration;
 use PDO;
 use PHPUnit\Framework\TestCase;
 use Ttpryg\AuditEngine\Domain\Entity\AuditLog;
+use Ttpryg\AuditEngine\Infrastructure\Database\DatabaseMigrator;
 use Ttpryg\AuditEngine\Infrastructure\Persistence\Pdo\PdoAuditStorage;
 
 class PdoAuditStorageTest extends TestCase
@@ -20,21 +21,9 @@ class PdoAuditStorageTest extends TestCase
         $this->pdo = new PDO('sqlite::memory:');
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        // Create SQLite Memory Table
-        $this->pdo->exec('
-            CREATE TABLE audit_logs (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                event_name VARCHAR(100) NOT NULL,
-                entity_type VARCHAR(50) NOT NULL,
-                entity_id VARCHAR(100) NOT NULL,
-                actor_id INT NULL,
-                old_values TEXT NULL,
-                new_values TEXT NULL,
-                ip_address VARCHAR(45) NULL,
-                user_agent VARCHAR(255) NULL,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-            )
-        ');
+        $databaseMigrator = new DatabaseMigrator($this->pdo);
+        $databaseMigrator->ensureTrackerTable();
+        $databaseMigrator->migrate();
 
         $this->pdoAuditStorage = new PdoAuditStorage($this->pdo);
     }

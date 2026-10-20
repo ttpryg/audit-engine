@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Baseline migration `database/migrations/202610200001_create_audit_logs_table.php`
+  with driver-aware `up()`/`down()` support for SQLite and MySQL/MariaDB, creating
+  the `audit_logs` table and its `idx_entity`, `idx_actor`, and `idx_event` indexes.
+- Migration tracking, rollback, and baseline support through
+  `ttpryg/database-migrator`, recorded in the `audit_engine_migrations` table.
+  Automatic tracker-table creation is disabled by default; call
+  `DatabaseMigrator::ensureTrackerTable()` explicitly or pass
+  `autoCreateTrackerTable: true`.
+
 ### Changed
 
 - **Breaking:** Split the codebase into Domain and Application layers following
@@ -27,6 +38,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   PSR-14 `Psr\EventDispatcher\EventDispatcherInterface`, allowing any compliant
   dispatcher to be injected. `ttpryg/event-dispatcher` is now an optional
   suggestion instead of a hard dependency.
+
+### Removed
+
+- Removed `database/schema.sql`; migrations in `database/migrations/` are now the
+  source of truth for the schema.
 
 ## [1.1.0] - 2026-10-18
 

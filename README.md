@@ -15,27 +15,32 @@
 
 ---
 
-## 🗄️ Database Schema (Optional - for PDO Storage Driver)
+## 🗄️ Database Migrations (Optional - for PDO Storage Driver)
 
-Run the SQL script from `database/schema.sql` or use `DatabaseMigrator`:
+Schema changes are managed by `DatabaseMigrator`, backed by
+[`ttpryg/database-migrator`](https://github.com/ttpryg/database-migrator).
+Migrations live in `database/migrations/` and are tracked in the
+`audit_engine_migrations` table.
 
-```sql
-CREATE TABLE IF NOT EXISTS audit_logs (
-    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    event_name VARCHAR(100) NOT NULL,
-    entity_type VARCHAR(50) NOT NULL,
-    entity_id VARCHAR(100) NOT NULL,
-    actor_id BIGINT UNSIGNED NULL,
-    old_values JSON NULL,
-    new_values JSON NULL,
-    ip_address VARCHAR(45) NULL,
-    user_agent VARCHAR(255) NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_entity (entity_type, entity_id),
-    INDEX idx_actor (actor_id),
-    INDEX idx_event (event_name)
-);
+```php
+use PDO;
+use Ttpryg\AuditEngine\Infrastructure\Database\DatabaseMigrator;
+
+$pdo = new PDO('sqlite:'.__DIR__.'/audit.sqlite');
+
+$migrator = new DatabaseMigrator($pdo);
+$migrator->ensureTrackerTable(); // tracker creation is explicit by default
+$migrator->migrate();            // create audit_logs and its indexes
+$migrator->rollback();           // revert the latest migration
+$migrator->appliedMigrations();
 ```
+
+Automatic tracker-table creation is disabled by default. Pass
+`autoCreateTrackerTable: true` to let the runner create it, or call
+`ensureTrackerTable()` during installation/deployment.
+
+The baseline migration is driver-aware (SQLite and MySQL/MariaDB) and creates
+the `audit_logs` table plus `idx_entity`, `idx_actor`, and `idx_event` indexes.
 
 ---
 
