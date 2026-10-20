@@ -23,6 +23,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `Storage\FileAuditStorage` → `Infrastructure\Persistence\File\FileAuditStorage`
   - `Storage\MemoryAuditStorage` → `Infrastructure\Persistence\InMemory\MemoryAuditStorage`
   - `Database\DatabaseMigrator` → `Infrastructure\Database\DatabaseMigrator`
+- **Breaking:** Replaced the internal `Contracts\EventDispatcherInterface` with the
+  PSR-14 `Psr\EventDispatcher\EventDispatcherInterface`, allowing any compliant
+  dispatcher to be injected. `ttpryg/event-dispatcher` is now an optional
+  suggestion instead of a hard dependency.
 
 ## [1.1.0] - 2026-10-18
 

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Ttpryg\AuditEngine\Application\Service;
 
-use Ttpryg\AuditEngine\Contracts\EventDispatcherInterface;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Ttpryg\AuditEngine\Domain\Entity\AuditLog;
 use Ttpryg\AuditEngine\Domain\Event\AuditLoggedEvent;
 use Ttpryg\AuditEngine\Domain\Repository\AuditRepositoryInterface;
