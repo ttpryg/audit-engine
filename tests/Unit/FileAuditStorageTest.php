@@ -6,7 +6,7 @@ namespace Ttpryg\AuditEngine\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
 use Ttpryg\AuditEngine\Domain\Entity\AuditLog;
-use Ttpryg\AuditEngine\Storage\FileAuditStorage;
+use Ttpryg\AuditEngine\Infrastructure\Persistence\File\FileAuditStorage;
 
 class FileAuditStorageTest extends TestCase
 {

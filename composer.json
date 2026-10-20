@@ -20,7 +20,8 @@
     },
     "autoload": {
         "psr-4": {
-            "Ttpryg\\AuditEngine\\": "src/"
+            "Ttpryg\\AuditEngine\\": "src/",
+            "Ttpryg\\AuditEngine\\Infrastructure\\": "infrastructure/"
         }
     },
     "autoload-dev": {

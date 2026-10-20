@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Ttpryg\AuditEngine\Storage;
+namespace Ttpryg\AuditEngine\Infrastructure\Persistence\InMemory;
 
 use Ttpryg\AuditEngine\Domain\Entity\AuditLog;
 use Ttpryg\AuditEngine\Domain\Repository\AuditRepositoryInterface;

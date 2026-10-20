@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Ttpryg\AuditEngine\Storage;
+namespace Ttpryg\AuditEngine\Infrastructure\Persistence\Pdo;
 
 use DateTimeImmutable;
 use PDO;

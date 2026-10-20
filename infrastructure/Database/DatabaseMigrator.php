@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Ttpryg\AuditEngine\Database;
+namespace Ttpryg\AuditEngine\Infrastructure\Database;
 
 use PDO;
 
