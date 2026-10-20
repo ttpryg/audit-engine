@@ -16,7 +16,7 @@ class FileAuditStorage implements AuditRepositoryInterface
     {
         $this->storagePath = rtrim($storagePath ?? sys_get_temp_dir().'/audit_engine_logs', '/');
         if (! is_dir($this->storagePath)) {
-            mkdir($this->storagePath, 0777, recursive: true);
+            mkdir($this->storagePath, 0755, recursive: true);
         }
     }
 
