@@ -10,6 +10,7 @@
   - `FileAuditStorage`: Structured `.jsonl` audit log files (`storage/logs/`).
   - `MemoryAuditStorage`: In-memory storage for unit testing.
 - **Domain Event Subscriber**: Includes `DomainEventSubscriber` that automatically hooks into PSR-14 domain events emitted by `auth-user`, `content-engine`, `catalog-engine`, and `cart-engine`!
+- **PSR-14 Compatible**: Accepts any `Psr\EventDispatcher\EventDispatcherInterface` implementation (Symfony, Laravel, `ttpryg/event-dispatcher`, etc.) to dispatch `AuditLoggedEvent`. No dispatcher implementation is required by default.
 - **Structured Audit Trails**: Records `event_name`, `entity_type`, `entity_id`, `actor_id` (who did it), `old_values` vs `new_values` (what changed), `ip_address`, and `user_agent`.
 
 ---

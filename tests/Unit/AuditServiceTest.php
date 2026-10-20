@@ -3,9 +3,9 @@
 namespace Ttpryg\AuditEngine\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Ttpryg\AuditEngine\Application\Service\AuditService;
 use Ttpryg\AuditEngine\Application\Service\DomainEventSubscriber;
-use Ttpryg\AuditEngine\Contracts\EventDispatcherInterface;
 use Ttpryg\AuditEngine\Domain\Event\AuditLoggedEvent;
 use Ttpryg\AuditEngine\Infrastructure\Persistence\InMemory\MemoryAuditStorage;
 
