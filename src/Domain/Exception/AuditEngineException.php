@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Ttpryg\AuditEngine\Exceptions;
+namespace Ttpryg\AuditEngine\Domain\Exception;
 
 use Exception;
 

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Ttpryg\AuditEngine\Contracts;
+namespace Ttpryg\AuditEngine\Domain\Entity;
 
 use DateTimeInterface;
 

@@ -6,8 +6,8 @@ namespace Ttpryg\AuditEngine\Storage;
 
 use DateTimeImmutable;
 use PDO;
-use Ttpryg\AuditEngine\Contracts\AuditRepositoryInterface;
-use Ttpryg\AuditEngine\Entities\AuditLog;
+use Ttpryg\AuditEngine\Domain\Entity\AuditLog;
+use Ttpryg\AuditEngine\Domain\Repository\AuditRepositoryInterface;
 
 class PdoAuditStorage implements AuditRepositoryInterface
 {

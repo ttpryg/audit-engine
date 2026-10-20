@@ -3,10 +3,10 @@
 namespace Ttpryg\AuditEngine\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
+use Ttpryg\AuditEngine\Application\Service\AuditService;
+use Ttpryg\AuditEngine\Application\Service\DomainEventSubscriber;
 use Ttpryg\AuditEngine\Contracts\EventDispatcherInterface;
-use Ttpryg\AuditEngine\Events\AuditLoggedEvent;
-use Ttpryg\AuditEngine\Services\AuditService;
-use Ttpryg\AuditEngine\Services\DomainEventSubscriber;
+use Ttpryg\AuditEngine\Domain\Event\AuditLoggedEvent;
 use Ttpryg\AuditEngine\Storage\MemoryAuditStorage;
 
 // Dummy Domain Event Classes mimicking other libraries

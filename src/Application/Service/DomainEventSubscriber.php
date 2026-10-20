@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Ttpryg\AuditEngine\Services;
+namespace Ttpryg\AuditEngine\Application\Service;
 
-use Ttpryg\AuditEngine\Entities\AuditLog;
-use Ttpryg\AuditEngine\ValueObjects\AuditLogContext;
+use Ttpryg\AuditEngine\Domain\Entity\AuditLog;
+use Ttpryg\AuditEngine\Domain\ValueObject\AuditLogContext;
 
 class DomainEventSubscriber
 {

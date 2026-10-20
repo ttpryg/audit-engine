@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Ttpryg\AuditEngine\Storage;
 
 use DateTimeImmutable;
-use Ttpryg\AuditEngine\Contracts\AuditRepositoryInterface;
-use Ttpryg\AuditEngine\Entities\AuditLog;
+use Ttpryg\AuditEngine\Domain\Entity\AuditLog;
+use Ttpryg\AuditEngine\Domain\Repository\AuditRepositoryInterface;
 
 class FileAuditStorage implements AuditRepositoryInterface
 {

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Ttpryg\AuditEngine\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
-use Ttpryg\AuditEngine\Entities\AuditLog;
+use Ttpryg\AuditEngine\Domain\Entity\AuditLog;
 
 class AuditEntityTest extends TestCase
 {
