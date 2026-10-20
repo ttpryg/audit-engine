@@ -19,6 +19,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `Exceptions\*` → `Domain\Exception\*`
   - `Services\AuditService` → `Application\Service\AuditService`
   - `Services\DomainEventSubscriber` → `Application\Service\DomainEventSubscriber`
+  - `Storage\PdoAuditStorage` → `Infrastructure\Persistence\Pdo\PdoAuditStorage`
+  - `Storage\FileAuditStorage` → `Infrastructure\Persistence\File\FileAuditStorage`
+  - `Storage\MemoryAuditStorage` → `Infrastructure\Persistence\InMemory\MemoryAuditStorage`
+  - `Database\DatabaseMigrator` → `Infrastructure\Database\DatabaseMigrator`
 
 ## [1.1.0] - 2026-10-18
 

@@ -7,7 +7,7 @@ use Ttpryg\AuditEngine\Application\Service\AuditService;
 use Ttpryg\AuditEngine\Application\Service\DomainEventSubscriber;
 use Ttpryg\AuditEngine\Contracts\EventDispatcherInterface;
 use Ttpryg\AuditEngine\Domain\Event\AuditLoggedEvent;
-use Ttpryg\AuditEngine\Storage\MemoryAuditStorage;
+use Ttpryg\AuditEngine\Infrastructure\Persistence\InMemory\MemoryAuditStorage;
 
 // Dummy Domain Event Classes mimicking other libraries
 class DummyUserRegisteredEvent

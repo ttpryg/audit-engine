@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS audit_logs (
 ```php
 use PDO;
 use Ttpryg\AuditEngine\Application\Service\AuditService;
-use Ttpryg\AuditEngine\Storage\PdoAuditStorage;
+use Ttpryg\AuditEngine\Infrastructure\Persistence\Pdo\PdoAuditStorage;
 
 $pdo = new PDO("mysql:host=localhost;dbname=my_db", "root", "secret");
 $storage = new PdoAuditStorage($pdo);
